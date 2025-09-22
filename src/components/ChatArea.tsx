@@ -29,7 +29,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ onError }) => {
     setMessages([
       {
         id: '1',
-        content: 'Hello! I\'m your RAG Assistant. Upload some documents using the sidebar and then ask me questions about their content. I can also listen to your voice input!',
+        content: "Hello! I'm Adam, your AI Assistant. Upload some documents using the sidebar and then ask me questions about their content. I can also listen to your voice input!",
         isUser: false,
         timestamp: new Date(),
       },
@@ -171,7 +171,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ onError }) => {
       {/* Header */}
       <div className="p-4 border-b border-purple-200/30 backdrop-blur-sm bg-white/10">
         <h1 className="text-xl font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-          AI Assistant Chat
+          Adam: Your AI Assistant
         </h1>
         <p className="text-sm text-gray-600">
           Ask questions about your uploaded documents
