@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { saveChatMessage } from '../services/chatService';
 import { Send, Mic, MicOff, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { VectorStore } from '../services/vectorStore';
@@ -54,6 +55,13 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ onError }) => {
     setInput('');
     setIsLoading(true);
 
+    // Save user message to Supabase
+    try {
+      await saveChatMessage(userMessage.content, true, userMessage.timestamp);
+    } catch (err) {
+      console.error('Failed to save user message:', err);
+    }
+
     try {
       // Search for relevant context
       const searchResults = await VectorStore.searchSimilar(input, 5, 0.7);
@@ -71,6 +79,18 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ onError }) => {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+
+      // Save assistant message to Supabase
+      try {
+        await saveChatMessage(
+          assistantMessage.content,
+          false,
+          assistantMessage.timestamp,
+          assistantMessage.sources
+        );
+      } catch (err) {
+        console.error('Failed to save assistant message:', err);
+      }
 
       // Speak the response if voice is enabled
       if (voiceService.isSupported && !isSpeaking) {
