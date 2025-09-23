@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { saveChatMessage } from '../services/chatService';
 import { Send, Mic, MicOff, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { VectorStore } from '../services/vectorStore';
@@ -28,7 +29,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ onError }) => {
     setMessages([
       {
         id: '1',
-        content: 'Hello! I\'m your RAG Assistant. Upload some documents using the sidebar and then ask me questions about their content. I can also listen to your voice input!',
+        content: "Hello! I'm Adam, your AI Assistant. Upload some documents using the sidebar and then ask me questions about their content. I can also listen to your voice input!",
         isUser: false,
         timestamp: new Date(),
       },
@@ -54,6 +55,13 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ onError }) => {
     setInput('');
     setIsLoading(true);
 
+    // Save user message to Supabase
+    try {
+      await saveChatMessage(userMessage.content, true, userMessage.timestamp);
+    } catch (err) {
+      console.error('Failed to save user message:', err);
+    }
+
     try {
       // Search for relevant context
       const searchResults = await VectorStore.searchSimilar(input, 5, 0.7);
@@ -71,6 +79,18 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ onError }) => {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+
+      // Save assistant message to Supabase
+      try {
+        await saveChatMessage(
+          assistantMessage.content,
+          false,
+          assistantMessage.timestamp,
+          assistantMessage.sources
+        );
+      } catch (err) {
+        console.error('Failed to save assistant message:', err);
+      }
 
       // Speak the response if voice is enabled
       if (voiceService.isSupported && !isSpeaking) {
@@ -151,7 +171,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ onError }) => {
       {/* Header */}
       <div className="p-4 border-b border-purple-200/30 backdrop-blur-sm bg-white/10">
         <h1 className="text-xl font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-          AI Assistant Chat
+          Adam: Your AI Assistant
         </h1>
         <p className="text-sm text-gray-600">
           Ask questions about your uploaded documents
